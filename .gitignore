@@ -1,0 +1,24 @@
+# ✅ Folder dependencies Node.js (jangan upload)
+node_modules/
+
+# ✅ Folder upload sementara (hasil upload & mp3)
+uploads/
+
+# ✅ File environment (kalau pakai .env untuk rahasia/konfigurasi)
+.env
+
+# ✅ MacOS/Linux/Windows system files
+.DS_Store
+Thumbs.db
+
+# ✅ Log & debug files (opsional)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# ✅ Optional: editor atau IDE config
+.vscode/
+.idea/
+*.swp
