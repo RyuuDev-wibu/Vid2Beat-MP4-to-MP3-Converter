@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎵 Vid2Beat | MP4 to MP3 Converter</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #1f1f2e;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      nav {
+        background: #00bcd4;
+        padding: 15px 20px;
+      }
+
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .logo {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #fff;
+        flex: 1;
+      }
+
+      .center-title {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #fff;
+        text-align: center;
+        flex: 2;
+      }
+
+      .spacer {
+        flex: 1;
+      }
+
+      footer {
+        background: #111;
+        padding: 15px;
+        text-align: center;
+        margin-top: auto;
+        font-size: 0.9em;
+        color: #888;
+      }
+
+      .container {
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      h1 {
+        color: #00ffd5;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #aaa;
+        margin-bottom: 25px;
+      }
+
+      .upload-area {
+        background: #2c2c3e;
+        padding: 30px;
+        border-radius: 15px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      }
+
+      label.custom-file {
+        background: #444;
+        color: #ccc;
+        padding: 12px;
+        display: block;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      label.custom-file:hover {
+        background: #555;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      button {
+        padding: 12px 25px;
+        background: #00bcd4;
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 1em;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #0097a7;
+      }
+
+      #status {
+        margin-top: 15px;
+        font-size: 1em;
+      }
+
+      #downloadBtn {
+        margin-top: 20px;
+        display: none;
+      }
+
+      #downloadBtn a {
+        padding: 10px 20px;
+        background: #4caf50;
+        color: #fff;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      #downloadBtn a:hover {
+        background: #45a049;
+      }
+
+      .back-btn {
+        padding: 10px 20px;
+        background: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(18, 18, 18, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        display: none;
+      }
+
+      .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #00bcd4;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loadingOverlay">
+      <div class="loader"></div>
+    </div>
+
+    <nav>
+      <div class="navbar">
+        <div class="logo">🎵 Vid2Beat</div>
+      </div>
+    </nav>
+
+    <div class="container" style="margin-top: 80px">
+      <div class="upload-area">
+        <h1>Convert MP4 ke MP3</h1>
+        <p>Upload video kamu lalu ubah ke MP3!</p>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+          <label class="custom-file">
+            Pilih video MP4
+            <input
+              type="file"
+              name="video"
+              accept="video/mp4"
+              required
+              id="fileInput"
+            />
+          </label>
+          <span
+            id="filename"
+            style="color: #0ff; display: block; margin-bottom: 15px"
+          ></span>
+
+          <button type="submit">Convert</button>
+          <p id="status"></p>
+        </form>
+
+        <div id="downloadBtn" style="display: none">
+          <a id="downloadLink" class="download" href="#">⬇️ Download MP3</a>
+          <br /><br />
+          <button id="backBtn" class="back-btn">🔁 Download lainnya</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>&copy; 2025 Ryuu Dev - All rights reserved.</footer>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+      const statusText = document.getElementById("status");
+      const downloadDiv = document.getElementById("downloadBtn");
+      const downloadLink = document.getElementById("downloadLink");
+      const fileInput = document.getElementById("fileInput");
+      const fileNameDisplay = document.getElementById("filename");
+      const backBtn = document.getElementById("backBtn");
+
+      // Tampilkan loading saat halaman dimuat
+      window.addEventListener("load", () => {
+        document.getElementById("loadingOverlay").style.display = "none";
+      });
+      document.getElementById("loadingOverlay").style.display = "flex";
+
+      // Tampilkan loading saat convert dimulai
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        document.getElementById("loadingOverlay").style.display = "flex";
+        statusText.innerText = "⏳ Mengupload dan mengonversi...";
+        downloadDiv.style.display = "none";
+
+        const formData = new FormData(form);
+        const response = await fetch("/convert", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          downloadLink.href = url;
+          downloadLink.download =
+            "converted_" + Math.random().toString(36).substring(2, 8) + ".mp3";
+          downloadDiv.style.display = "block";
+          statusText.innerText = "✅ Berhasil dikonversi!";
+        } else {
+          statusText.innerText = "❌ Gagal mengonversi.";
+        }
+
+        document.getElementById("loadingOverlay").style.display = "none";
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        statusText.innerText = "⏳ Mengupload dan mengonversi...";
+        downloadDiv.style.display = "none";
+
+        const formData = new FormData(form);
+        const response = await fetch("/convert", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          downloadLink.href = url;
+          downloadLink.download =
+            "Vid2Beat_" + Math.random().toString(36).substring(2, 8) + ".mp3";
+          downloadDiv.style.display = "block";
+          statusText.innerText = "✅ Berhasil dikonversi!";
+        } else {
+          statusText.innerText = "❌ Gagal mengonversi.";
+        }
+      });
+
+      fileInput.addEventListener("change", function () {
+        const file = fileInput.files[0];
+        if (file) {
+          fileNameDisplay.innerText = "📁 " + file.name;
+        } else {
+          fileNameDisplay.innerText = "";
+        }
+      });
+
+      backBtn.addEventListener("click", function () {
+        // Reset form & UI
+        form.reset();
+        statusText.innerText = "";
+        fileNameDisplay.innerText = "";
+        downloadDiv.style.display = "none";
+      });
+    </script>
+  </body>
+</html>
